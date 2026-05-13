@@ -35,6 +35,8 @@ public class CommandParser {
                 return player.getInventoryString();
             case "help":
                 return handleHelp();
+            case "skills":
+                return player.getSkillsString();
             default:
                 return "Unknown command. Type 'help' for a list of commands.";
         }
@@ -53,12 +55,12 @@ public class CommandParser {
     }
 
     private String handlePick(String argument) {
-        // handles "pick up sword" or "pick sword"
         String itemName = argument.replace("up ", "").trim();
         if (itemName.isEmpty()) return "Pick up what?";
 
         Item item = player.getCurrentRoom().getItems().stream()
-                .filter(i -> i.getName().equalsIgnoreCase(itemName))
+                .filter(i -> i.getName().toLowerCase()
+                        .contains(itemName.toLowerCase()))
                 .findFirst().orElse(null);
 
         if (item == null) return "There is no " + itemName + " here.";
@@ -66,7 +68,14 @@ public class CommandParser {
         if (player.pickUp(item)) {
             GameWorld.getInstance().getEventManager()
                     .notify(player.getName() + " picked up " + item.getName());
-            return "You picked up " + item.getName() + ".";
+
+            // teach skill if weapon
+            String result = "You picked up " + item.getName() + ".";
+            if (item.teachesSkill()) {
+                player.learnSkill(item.getSkill());
+                result += "\nYou learned: " + item.getSkill().getName() + "!";
+            }
+            return result;
         }
         return "You can't pick that up.";
     }
@@ -104,6 +113,7 @@ public class CommandParser {
                 "  drop [item]       - Drop an item\n" +
                 "  inventory         - Check your inventory\n" +
                 "  help              - Show this list\n" +
+                "  skills           - Show your learned skills\n" +
                 "  quit              - Exit the game\n";
     }
 }
