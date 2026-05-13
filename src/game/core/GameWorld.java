@@ -4,6 +4,8 @@ import game.model.Player;
 import game.model.Room;
 import java.util.ArrayList;
 import java.util.List;
+import game.observer.GameEventManager;
+
 
 public class GameWorld {
 
@@ -13,11 +15,14 @@ public class GameWorld {
     private List<Room> rooms;
     private List<Player> players;
     private Room startingRoom;
+    private GameEventManager eventManager;
+
 
     // Private constructor - nobody can do "new GameWorld()" from outside
     private GameWorld() {
         rooms = new ArrayList<>();
         players = new ArrayList<>();
+        eventManager = new GameEventManager();
     }
 
     // This is how everyone accesses the one GameWorld
@@ -34,4 +39,6 @@ public class GameWorld {
     public List<Player> getPlayers() { return players; }
     public Room getStartingRoom() { return startingRoom; }
     public void setStartingRoom(Room room) { this.startingRoom = room; }
+    public GameEventManager getEventManager() { return eventManager; }
+
 }

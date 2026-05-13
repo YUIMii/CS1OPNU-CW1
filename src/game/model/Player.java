@@ -2,8 +2,9 @@ package game.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import game.observer.GameEventListener;
 
-public class Player {
+public class Player implements GameEventListener {
     private String name;
     private Room currentRoom;
     private List<Item> inventory;
@@ -56,5 +57,10 @@ public class Player {
             sb.append("  - ").append(item.toString()).append("\n");
         }
         return sb.toString();
+    }
+
+    @Override
+    public void onEvent(String message) {
+        System.out.println("[" + name + " received]: " + message);
     }
 }
