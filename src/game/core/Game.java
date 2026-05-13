@@ -27,8 +27,27 @@ public class Game {
         System.out.println("===========================================");
         System.out.println("   DUNGEON OF THE FORGOTTEN KING");
         System.out.println("===========================================");
-        System.out.println("Find the 3 artifacts and defeat the guardian.");
-        System.out.println("Type 'help' for commands.\n");
+        System.out.println("\n📖 STORY:");
+        System.out.println("The Forgotten King's dungeon has awakened.");
+        System.out.println("A dragon guards the exit. You must find");
+        System.out.println("3 ancient artifacts and 3 magic weapons");
+        System.out.println("to stand a chance against it.\n");
+        System.out.println("🎯 GOAL:");
+        System.out.println("1. Find the Magic Sword → learn Slash");
+        System.out.println("2. Find the Magic Staff → learn Fireball");
+        System.out.println("3. Find the Dragon Shield → learn Block");
+        System.out.println("4. Collect all 3 Forgotten Artifacts");
+        System.out.println("5. Enter Boss Chamber and defeat the dragon!");
+        System.out.println("\n📋 COMMANDS:");
+        System.out.println("  look              - Look around");
+        System.out.println("  go [direction]    - Move north/south/east/west");
+        System.out.println("  pick up [item]    - Pick up an item");
+        System.out.println("  drop [item]       - Drop an item");
+        System.out.println("  inventory         - Check inventory");
+        System.out.println("  skills            - Check your skills");
+        System.out.println("  help              - Show commands again");
+        System.out.println("  quit              - Exit game");
+        System.out.println("\n===========================================\n");
     }
 
     private void setupWorld() {
@@ -103,10 +122,36 @@ public class Game {
             System.out.println(result);
 
             // Check win condition
-            if (checkWin(currentPlayer)) {
-                System.out.println("\n🏆 " + currentPlayer.getName() +
-                        " has won the game!");
-                break;
+// Check if player entered boss chamber
+            if (currentPlayer.getCurrentRoom().getName()
+                    .equals("Boss Chamber")) {
+                long artifactCount = currentPlayer.getInventory()
+                        .stream()
+                        .filter(i -> i.getName().equals("Forgotten Artifact"))
+                        .count();
+
+                if (artifactCount < 3) {
+                    System.out.println("⚠️  You need all 3 artifacts " +
+                            "before fighting the dragon!");
+                    System.out.println("Artifacts collected: " +
+                            artifactCount + "/3");
+                } else {
+                    // Start combat!
+                    Combat combat = new Combat(currentPlayer);
+                    boolean won = combat.start();
+                    if (won) {
+                        System.out.println("\n🏆 CONGRATULATIONS " +
+                                currentPlayer.getName() + "!");
+                        System.out.println("The dragon is defeated!");
+                        System.out.println("The Dungeon of the Forgotten King" +
+                                " is free at last!");
+                        break;
+                    } else {
+                        System.out.println("\n💀 You were defeated...");
+                        System.out.println("The dragon wins this time.");
+                        break;
+                    }
+                }
             }
 
             // Next player's turn
