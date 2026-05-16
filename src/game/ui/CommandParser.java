@@ -37,6 +37,10 @@ public class CommandParser {
                 return handleHelp();
             case "skills":
                 return player.getSkillsString();
+            case "talk":
+                return handleTalk();
+            case "trade":
+                return handleTrade(argument);
             default:
                 return "Unknown command. Type 'help' for a list of commands.";
         }
@@ -105,6 +109,48 @@ public class CommandParser {
         return sb.toString();
     }
 
+    private String handleTalk() {
+        Room room = player.getCurrentRoom();
+        if (!room.hasNPC()) {
+            return "There is nobody here to talk to.";
+        }
+        NPC npc = room.getNPC();
+        return npc.interact();
+    }
+
+    private String handleTrade(String argument) {
+        Room room = player.getCurrentRoom();
+        if (!room.hasNPC()) return "There is nobody here to trade with.";
+
+        NPC npc = room.getNPC();
+        if (argument.isEmpty()) return "Trade what? Type 'talk' to see trades.";
+
+        // find item in inventory
+        Item playerItem = player.getInventoryItem(argument);
+        if (playerItem == null) {
+            return "You don't have " + argument + " in your inventory.";
+        }
+
+        // check if NPC accepts this item
+        String receiveItemName = npc.getTrades()
+                .get(playerItem.getName().toLowerCase());
+        if (receiveItemName == null) {
+            return npc.getName() + " doesn't want that item.";
+        }
+
+        // do the trade
+        player.dropItem(playerItem);
+        Item receivedItem = new Item(receiveItemName,
+                "Traded from " + npc.getName(), true);
+        player.pickUp(receivedItem);
+
+        GameWorld.getInstance().getEventManager()
+                .notify(player.getName() + " traded with " + npc.getName());
+
+        return "✅ Trade complete! You gave " + playerItem.getName() +
+                " and received " + receiveItemName + "!";
+    }
+
     private String handleHelp() {
         return "\nAvailable commands:\n" +
                 "  go [direction]    - Move (north, south, east, west)\n" +
@@ -114,6 +160,8 @@ public class CommandParser {
                 "  inventory         - Check your inventory\n" +
                 "  help              - Show this list\n" +
                 "  skills           - Show your learned skills\n" +
+                "  talk              - Talk to NPC in the room\n" +
+                "  trade [item]      - Trade an item with NPC\n" +
                 "  quit              - Exit the game\n";
     }
 }

@@ -2,6 +2,7 @@ package game.factory;
 
 import game.model.Item;
 import game.model.Room;
+import game.model.NPC;
 
 public class RoomFactory {
 
@@ -21,6 +22,12 @@ public class RoomFactory {
                                 "Something rustles in the shadows.");
                 room.addItem(ItemFactory.createItem("staff"));
                 room.addItem(ItemFactory.createItem("artifact"));
+                NPC merchant = new NPC("Old Merchant",
+                        "Greetings adventurer! I've been trapped here for years. " +
+                                "I can trade with you if you have something useful!");
+                merchant.addTrade("Health Potion", "Ancient Key");
+                merchant.addTrade("Ancient Key", "Health Potion");
+                room.setNPC(merchant);
                 return room;
 
             case "armory":

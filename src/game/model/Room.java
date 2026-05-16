@@ -10,6 +10,7 @@ public class Room {
     private String description;
     private Map<String, Room> exits;
     private List<Item> items;
+    private NPC npc;
 
     public Room(String name, String description) {
         this.name = name;
@@ -47,5 +48,8 @@ public class Room {
     }
 
     public List<Item> getItems() { return items; }
+    public void setNPC(NPC npc) { this.npc = npc; }
+    public NPC getNPC() { return npc; }
+    public boolean hasNPC() { return npc != null; }
 
 }
