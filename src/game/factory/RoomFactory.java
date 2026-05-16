@@ -14,6 +14,13 @@ public class RoomFactory {
                         "You stand in a grand hall. Torches flicker on the walls. " +
                                 "The air smells of dust and danger.");
                 room.addItem(ItemFactory.createItem("potion"));
+                // Add merchant NPC
+                NPC merchant = new NPC("Old Merchant",
+                        "Greetings adventurer! I've been trapped here for years. " +
+                                "I can trade with you if you have something useful!");
+                merchant.addTrade("Health Potion", "Ancient Key");
+                merchant.addTrade("Ancient Key", "Health Potion");
+                room.setNPC(merchant);
                 return room;
 
             case "library":
@@ -22,13 +29,8 @@ public class RoomFactory {
                                 "Something rustles in the shadows.");
                 room.addItem(ItemFactory.createItem("staff"));
                 room.addItem(ItemFactory.createItem("artifact"));
-                NPC merchant = new NPC("Old Merchant",
-                        "Greetings adventurer! I've been trapped here for years. " +
-                                "I can trade with you if you have something useful!");
-                merchant.addTrade("Health Potion", "Ancient Key");
-                merchant.addTrade("Ancient Key", "Health Potion");
-                room.setNPC(merchant);
                 return room;
+
 
             case "armory":
                 room = new Room("Armory",
@@ -38,13 +40,15 @@ public class RoomFactory {
                 room.addItem(ItemFactory.createItem("shield"));
                 return room;
 
-            case "crypt":
+            case "crypt": {
                 room = new Room("The Crypt",
                         "Coffins line the walls. A cold wind blows " +
                                 "from somewhere deeper in the dungeon.");
                 room.addItem(ItemFactory.createItem("artifact"));
                 room.addItem(ItemFactory.createItem("key"));
+                room.setLocked(true, "Ancient Key"); // locked!
                 return room;
+            }
 
             case "treasure":
                 room = new Room("Treasure Room",

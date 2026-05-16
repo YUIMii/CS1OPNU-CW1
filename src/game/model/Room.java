@@ -11,12 +11,16 @@ public class Room {
     private Map<String, Room> exits;
     private List<Item> items;
     private NPC npc;
+    private boolean isLocked;
+    private String keyItemName;
 
     public Room(String name, String description) {
         this.name = name;
         this.description = description;
         this.exits = new HashMap<>();
         items = new ArrayList<>();
+        isLocked = false;
+        keyItemName = null;
     }
 
     public void addExit(String direction, Room room) {
@@ -51,5 +55,14 @@ public class Room {
     public void setNPC(NPC npc) { this.npc = npc; }
     public NPC getNPC() { return npc; }
     public boolean hasNPC() { return npc != null; }
+    public void setLocked(boolean locked, String keyItemName) {
+        this.isLocked = locked;
+        this.keyItemName = keyItemName;
+    }
+
+    public boolean isLocked() { return isLocked; }
+    public String getKeyItemName() { return keyItemName; }
+
+    public void unlock() { this.isLocked = false; }
 
 }

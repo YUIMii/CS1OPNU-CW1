@@ -4,6 +4,7 @@ import game.model.Item;
 import game.model.Player;
 import game.model.Room;
 import game.core.GameWorld;
+import game.model.NPC;
 
 public class CommandParser {
 
@@ -41,6 +42,8 @@ public class CommandParser {
                 return handleTalk();
             case "trade":
                 return handleTrade(argument);
+            case "use":
+                return handleUse(argument);
             default:
                 return "Unknown command. Type 'help' for a list of commands.";
         }
@@ -52,6 +55,21 @@ public class CommandParser {
         if (nextRoom == null) {
             return "You can't go that way.";
         }
+
+        // check if room is locked
+        if (nextRoom.isLocked()) {
+            Item key = player.getInventoryItem(nextRoom.getKeyItemName());
+            if (key == null) {
+                return "🔒 The " + nextRoom.getName() +
+                        " is locked! You need: " + nextRoom.getKeyItemName();
+            }
+            // unlock it
+            nextRoom.unlock();
+            player.dropItem(key); // key is used up
+            System.out.println("🔑 You used the " + key.getName() +
+                    " to unlock " + nextRoom.getName() + "!");
+        }
+
         player.moveTo(nextRoom);
         GameWorld.getInstance().getEventManager()
                 .notify(player.getName() + " moved to " + nextRoom.getName());
@@ -75,6 +93,17 @@ public class CommandParser {
 
             // teach skill if weapon
             String result = "You picked up " + item.getName() + ".";
+            // show artifact count if picked up artifact
+            if (item.getName().equals("Forgotten Artifact")) {
+                long count = player.getInventory().stream()
+                        .filter(i -> i.getName().equals("Forgotten Artifact"))
+                        .count();
+                result += "\n📜 Artifacts collected: " + count + "/3";
+                if (count == 3) {
+                    result += "\n⚠️  You have all 3 artifacts! " +
+                            "Head to the Boss Chamber!";
+                }
+            }
             if (item.teachesSkill()) {
                 player.learnSkill(item.getSkill());
                 result += "\nYou learned: " + item.getSkill().getName() + "!";
@@ -97,12 +126,18 @@ public class CommandParser {
     private String handleLook() {
         Room room = player.getCurrentRoom();
         StringBuilder sb = new StringBuilder();
-        sb.append("\n=== ").append(room.getName()).append(" ===\n");
+        sb.append("\n❤️  Health: ").append(player.getHealth()).append("/100\n");
+        sb.append("=== ").append(room.getName()).append(" ===\n");
         sb.append(room.getDescription()).append("\n");
 
+        if (room.hasNPC()) {
+            sb.append("👤 ").append(room.getNPC().getName())
+                    .append(" is here.\n");
+        }
         if (!room.getItems().isEmpty()) {
             sb.append("Items here: ");
-            room.getItems().forEach(i -> sb.append(i.getName()).append(" "));
+            room.getItems().forEach(i ->
+                    sb.append(i.getName()).append(" "));
             sb.append("\n");
         }
         sb.append(room.getExitsString());
@@ -151,6 +186,24 @@ public class CommandParser {
                 " and received " + receiveItemName + "!";
     }
 
+    private String handleUse(String argument) {
+        if (argument.isEmpty()) return "Use what?";
+
+        Item item = player.getInventoryItem(argument);
+        if (item == null) return "You don't have " + argument + ".";
+
+        if (item.getName().equalsIgnoreCase("Health Potion")) {
+            int oldHealth = player.getHealth();
+            player.setHealth(Math.min(100, oldHealth + 30));
+            player.dropItem(item);
+            player.getCurrentRoom().removeItem("Health Potion");
+            return "🧪 You drank the Health Potion! +" +
+                    (player.getHealth() - oldHealth) + " HP. " +
+                    "Health: " + player.getHealth() + "/100";
+        }
+        return "You can't use that.";
+    }
+
     private String handleHelp() {
         return "\nAvailable commands:\n" +
                 "  go [direction]    - Move (north, south, east, west)\n" +
@@ -162,6 +215,7 @@ public class CommandParser {
                 "  skills           - Show your learned skills\n" +
                 "  talk              - Talk to NPC in the room\n" +
                 "  trade [item]      - Trade an item with NPC\n" +
+                "  use [item]        - Use an item (e.g. Health Potion)\n" +
                 "  quit              - Exit the game\n";
     }
 }
