@@ -179,6 +179,20 @@ classDiagram
 ```
 
 ---
+## Assumptions
+- JDK 25 was used for development as it was already installed,
+  though JDK 21+ is recommended.
+- Players must collect all 3 artifacts before the dragon fight
+  triggers, ensuring full dungeon exploration before the final battle.
+- The Ancient Key is consumed after unlocking the Crypt, making
+  the merchant trade meaningful and encouraging player interaction
+  with the NPC.
+- The Stone Altar item is intentionally non-pickable, demonstrating
+  the pickable flag functionality in the Item class.
+- Networking is listed as optional in the specification and was
+  not implemented. Multi-player is supported through local
+  turn-based play instead.
+---
 
 ## AI Usage
 Claude (claude.ai) was used to assist with:
